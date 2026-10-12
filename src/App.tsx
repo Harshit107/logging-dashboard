@@ -22,6 +22,7 @@ import {
   ArrowRight,
   RefreshCw,
 } from 'lucide-react';
+import { ECOSYSTEM_URLS } from './constants';
 import './App.css';
 
 type ActiveViewTab = 'trace' | 'stream' | 'schemas' | 'simulator';
@@ -320,24 +321,24 @@ export default function App() {
       <footer className="footer container">
         <p>FreelyEmail Central Logging Platform &bull; Built with TypeScript &bull; {new Date().getFullYear()}</p>
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap', fontSize: '11px' }}>
-          <a href="https://github.com/Harshit107/FreelyEmail-API" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
-            FreelyEmail-API (:5000)
+          <a href={ECOSYSTEM_URLS.MAIL_API} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+            Email API
           </a>
           <span>&bull;</span>
-          <a href="https://github.com/Harshit107/FreelyEmail-Node-library" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
-            FreelyEmail-Node-library
+          <a href={ECOSYSTEM_URLS.REPOS.SDK} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+            Client SDK
           </a>
           <span>&bull;</span>
-          <a href="https://github.com/Harshit107/central-logging-service" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
-            central-logging-service (:5001)
+          <a href={ECOSYSTEM_URLS.LOGGER_API} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+            Logger API
           </a>
           <span>&bull;</span>
-          <a href="https://github.com/Harshit107/logging-dashboard" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
-            logging-dashboard (:5174)
+          <a href={ECOSYSTEM_URLS.LOGGER_UI} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+            Dashboard UI
           </a>
           <span>&bull;</span>
-          <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand-primary-light)' }}>
-            Showcase Portal (:5173)
+          <a href={ECOSYSTEM_URLS.SHOWCASE_UI} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand-primary-light)' }}>
+            Showcase Portal
           </a>
         </div>
       </footer>

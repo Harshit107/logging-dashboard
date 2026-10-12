@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const targetBackend = env.VITE_BACKEND_URL || 'http://localhost:5001';
+  const targetBackend = env.VITE_BACKEND_URL || 'https://logger-api.harshit107.online';
   const apiKey = env.LOGGING_SERVICE_API_KEY || '50b65cea-691b-406e-9d28-0718b86abe98';
 
   return {

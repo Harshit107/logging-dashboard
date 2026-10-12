@@ -8,6 +8,8 @@ interface NavbarProps {
   health: ServiceHealth | null;
 }
 
+import { ECOSYSTEM_URLS } from '../constants';
+
 export const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme, health }) => {
   return (
     <header className="navbar glass-panel">
@@ -28,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme, health }) =>
               <span className="indicator-dot" />
               <span className="indicator-label">
                 {health.status === 'healthy'
-                  ? 'Service Online (:5001)'
+                  ? 'Service Online'
                   : health.status === 'degraded'
                   ? 'Degraded'
                   : 'Backend Offline'}
@@ -42,14 +44,14 @@ export const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme, health }) =>
           </div>
 
           <a
-            href="http://localhost:5173"
+            href={ECOSYSTEM_URLS.SHOWCASE_UI}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-secondary btn-sm"
             style={{ fontSize: '11px', padding: '5px 10px', textDecoration: 'none' }}
             title="Open FreelyEmail Showcase Portal"
           >
-            <span>Showcase (:5173)</span>
+            <span>Showcase Portal</span>
           </a>
 
           <button
