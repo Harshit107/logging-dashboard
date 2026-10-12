@@ -18,4 +18,5 @@ export const ECOSYSTEM_URLS = Object.freeze({
 
 export const DEFAULT_CONFIG = Object.freeze({
   BACKEND_API_URL: import.meta.env.VITE_BACKEND_URL || ECOSYSTEM_URLS.LOGGER_API,
+  API_KEY: import.meta.env.VITE_LOGGING_SERVICE_API_KEY || "50b65cea-691b-406e-9d28-0718b86abe98",
 });

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import { API_BASE, getAuthHeaders } from '../services/api';
 
 interface ApiSimulatorProps {
   onLogCreated: (messageId: string) => void;
@@ -35,9 +36,9 @@ export const ApiSimulator: React.FC<ApiSimulatorProps> = ({ onLogCreated }) => {
     }
 
     try {
-      const res = await fetch('/api/v1/logs/user-data', {
+      const res = await fetch(`${API_BASE}/api/v1/logs/user-data`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
       });
       const data = await res.json();
