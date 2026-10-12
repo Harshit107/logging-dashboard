@@ -41,6 +41,17 @@ export const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme, health }) =>
             <span>Authenticated Proxy</span>
           </div>
 
+          <a
+            href="http://localhost:5173"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary btn-sm"
+            style={{ fontSize: '11px', padding: '5px 10px', textDecoration: 'none' }}
+            title="Open FreelyEmail Showcase Portal"
+          >
+            <span>Showcase (:5173)</span>
+          </a>
+
           <button
             onClick={toggleTheme}
             className="theme-toggle-btn"

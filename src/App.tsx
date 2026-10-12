@@ -319,6 +319,27 @@ export default function App() {
 
       <footer className="footer container">
         <p>FreelyEmail Central Logging Platform &bull; Built with TypeScript &bull; {new Date().getFullYear()}</p>
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '10px', flexWrap: 'wrap', fontSize: '11px' }}>
+          <a href="https://github.com/Harshit107/FreelyEmail-API" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+            FreelyEmail-API (:5000)
+          </a>
+          <span>&bull;</span>
+          <a href="https://github.com/Harshit107/FreelyEmail-Node-library" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+            FreelyEmail-Node-library
+          </a>
+          <span>&bull;</span>
+          <a href="https://github.com/Harshit107/central-logging-service" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+            central-logging-service (:5001)
+          </a>
+          <span>&bull;</span>
+          <a href="https://github.com/Harshit107/logging-dashboard" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+            logging-dashboard (:5174)
+          </a>
+          <span>&bull;</span>
+          <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand-primary-light)' }}>
+            Showcase Portal (:5173)
+          </a>
+        </div>
       </footer>
     </div>
   );
