@@ -15,6 +15,7 @@ import {
   AlertCircle,
   FileCode,
   Layers,
+  Sliders,
 } from 'lucide-react';
 import { UserDataLogRecord } from '../types';
 
@@ -22,9 +23,15 @@ interface RecordCardProps {
   record: UserDataLogRecord;
   index: number;
   totalRecords: number;
+  onSelectForUpdate?: (messageId: string) => void;
 }
 
-export const RecordCard: React.FC<RecordCardProps> = ({ record, index, totalRecords }) => {
+export const RecordCard: React.FC<RecordCardProps> = ({
+  record,
+  index,
+  totalRecords,
+  onSelectForUpdate,
+}) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'details' | 'json'>('details');
@@ -50,11 +57,25 @@ export const RecordCard: React.FC<RecordCardProps> = ({ record, index, totalReco
             <span>Dispatched</span>
           </span>
         );
+      case 'delivered':
+        return (
+          <span className="badge badge-delivered">
+            <CheckCircle2 className="w-3 h-3" />
+            <span>Delivered</span>
+          </span>
+        );
       case 'acknowledged':
         return (
           <span className="badge badge-acknowledged">
             <CheckCircle2 className="w-3 h-3" />
             <span>Acknowledged</span>
+          </span>
+        );
+      case 'opened':
+        return (
+          <span className="badge badge-opened">
+            <CheckCircle2 className="w-3 h-3" />
+            <span>Opened</span>
           </span>
         );
       case 'queued':
@@ -65,10 +86,11 @@ export const RecordCard: React.FC<RecordCardProps> = ({ record, index, totalReco
           </span>
         );
       case 'failed':
+      case 'bounced':
         return (
           <span className="badge badge-failed">
             <AlertCircle className="w-3 h-3" />
-            <span>Failed</span>
+            <span>{status.charAt(0).toUpperCase() + status.slice(1)}</span>
           </span>
         );
       default:
@@ -132,7 +154,23 @@ export const RecordCard: React.FC<RecordCardProps> = ({ record, index, totalReco
               <FileCode className="w-3.5 h-3.5" />
               <span>Raw JSON Document</span>
             </button>
+            {onSelectForUpdate && (
+              <button
+                type="button"
+                className="subnav-btn"
+                style={{ marginLeft: 'auto', color: '#818cf8', borderColor: 'rgba(99, 102, 241, 0.3)' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectForUpdate(record.messageId);
+                }}
+                title="Open status & parameter updater for this message"
+              >
+                <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Update Lifecycle</span>
+              </button>
+            )}
           </div>
+
 
           {activeTab === 'details' ? (
             <div className="details-grid-pane">

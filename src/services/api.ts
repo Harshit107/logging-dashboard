@@ -82,3 +82,41 @@ export async function fetchRecentLogs(limit = 15): Promise<any> {
   return data?.data?.records || [];
 }
 
+/**
+ * Updates a User Data Log record by Message ID
+ * PATCH /api/v1/logs/user-data/:messageId
+ */
+export async function updateLogByMessageId(
+  messageId: string,
+  payload: {
+    status?: string;
+    recipient?: string;
+    subject?: string;
+    app?: string;
+    metadata?: Record<string, any>;
+  }
+): Promise<any> {
+  const cleanId = messageId.trim();
+  if (!cleanId) {
+    throw new Error('Please enter a Message ID to update.');
+  }
+
+  const encodedId = encodeURIComponent(cleanId);
+  const res = await fetch(`${API_BASE}/api/v1/logs/user-data/${encodedId}`, {
+    method: 'PATCH',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    const message = data?.error?.message || data?.message || `Error ${res.status}: Failed to update log`;
+    const error = new Error(message);
+    (error as any).status = res.status;
+    (error as any).details = data;
+    throw error;
+  }
+
+  return data;
+}
+

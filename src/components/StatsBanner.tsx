@@ -19,7 +19,7 @@ export const StatsBanner: React.FC<StatsBannerProps> = ({ health, totalLogsCount
         </div>
         <div className="stat-value">
           <span className={`status-indicator-dot ${health?.status || 'offline'}`} />
-          {health?.status === 'healthy' ? 'Online (:5001)' : 'Offline'}
+          {health?.status === 'healthy' ? 'Online' : 'Offline'}
         </div>
         <div className="stat-caption">MongoDB Atlas &bull; Uptime: {Math.round(health?.uptime || 0)}s</div>
       </div>

@@ -7,6 +7,7 @@ import StatsBanner from './components/StatsBanner';
 import RecentFeed from './components/RecentFeed';
 import SchemaViewer from './components/SchemaViewer';
 import ApiSimulator from './components/ApiSimulator';
+import LogUpdater from './components/LogUpdater';
 import { checkBackendHealth, searchByMessageId, fetchRecentLogs } from './services/api';
 import { UserDataLogRecord, ServiceHealth } from './types';
 import {
@@ -21,11 +22,12 @@ import {
   Sparkles,
   ArrowRight,
   RefreshCw,
+  Sliders,
 } from 'lucide-react';
 import { ECOSYSTEM_URLS } from './constants';
 import './App.css';
 
-type ActiveViewTab = 'trace' | 'stream' | 'schemas' | 'simulator';
+type ActiveViewTab = 'trace' | 'stream' | 'updater' | 'simulator' | 'schemas';
 
 export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -40,6 +42,7 @@ export default function App() {
   const [recentLogs, setRecentLogs] = useState<UserDataLogRecord[]>([]);
   const [isLoadingRecent, setIsLoadingRecent] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<ActiveViewTab>('trace');
+  const [updateTargetId, setUpdateTargetId] = useState<string>('');
 
   // Sync theme attribute with DOM
   useEffect(() => {
@@ -107,6 +110,11 @@ export default function App() {
     handleSearch(messageId);
   };
 
+  const handleSelectForUpdate = (messageId: string) => {
+    setUpdateTargetId(messageId);
+    setActiveTab('updater');
+  };
+
   return (
     <div className="app-layout">
       <Navbar theme={theme} toggleTheme={toggleTheme} health={health} />
@@ -159,12 +167,12 @@ export default function App() {
           </button>
 
           <button
-            className={`nav-tab-item ${activeTab === 'schemas' ? 'active' : ''}`}
-            onClick={() => setActiveTab('schemas')}
+            className={`nav-tab-item ${activeTab === 'updater' ? 'active' : ''}`}
+            onClick={() => setActiveTab('updater')}
           >
-            <Database className="w-4 h-4" />
-            <span>Database Schemas</span>
-            <span className="tab-pill">3 models</span>
+            <Sliders className="w-4 h-4" />
+            <span>Update Lifecycle</span>
+            <span className="tab-pill update">PATCH Status</span>
           </button>
 
           <button
@@ -174,6 +182,15 @@ export default function App() {
             <Code2 className="w-4 h-4" />
             <span>API Simulator</span>
             <span className="tab-pill test">REST Post</span>
+          </button>
+
+          <button
+            className={`nav-tab-item ${activeTab === 'schemas' ? 'active' : ''}`}
+            onClick={() => setActiveTab('schemas')}
+          >
+            <Database className="w-4 h-4" />
+            <span>Database Schemas</span>
+            <span className="tab-pill">3 models</span>
           </button>
         </div>
 
@@ -283,6 +300,7 @@ export default function App() {
                       record={record}
                       index={index}
                       totalRecords={records.length}
+                      onSelectForUpdate={handleSelectForUpdate}
                     />
                   ))}
                 </div>
@@ -303,10 +321,16 @@ export default function App() {
           </section>
         )}
 
-        {/* Tab 3: Database Schemas View */}
-        {activeTab === 'schemas' && (
+        {/* Tab 3: Message Status & Parameter Updater */}
+        {activeTab === 'updater' && (
           <section className="results-container">
-            <SchemaViewer />
+            <LogUpdater
+              initialMessageId={updateTargetId}
+              onUpdated={(msgId) => {
+                loadRecentData();
+                handleSearch(msgId);
+              }}
+            />
           </section>
         )}
 
@@ -314,6 +338,13 @@ export default function App() {
         {activeTab === 'simulator' && (
           <section className="results-container">
             <ApiSimulator onLogCreated={handleLogCreated} />
+          </section>
+        )}
+
+        {/* Tab 5: Database Schemas View */}
+        {activeTab === 'schemas' && (
+          <section className="results-container">
+            <SchemaViewer />
           </section>
         )}
       </main>
