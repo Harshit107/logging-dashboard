@@ -15,7 +15,9 @@ import {
   AlertCircle,
   FileCode,
   Layers,
-  Sliders,
+  Database,
+  Calendar,
+  Sparkles,
 } from 'lucide-react';
 import { UserDataLogRecord } from '../types';
 
@@ -23,14 +25,24 @@ interface RecordCardProps {
   record: UserDataLogRecord;
   index: number;
   totalRecords: number;
-  onSelectForUpdate?: (messageId: string) => void;
+}
+
+function getRelativeTimeString(date: Date): string {
+  const diffSec = Math.round((Date.now() - date.getTime()) / 1000);
+  if (diffSec < 5) return 'Just now';
+  if (diffSec < 60) return `${diffSec}s ago`;
+  const diffMin = Math.round(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHours = Math.round(diffMin / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.round(diffHours / 24);
+  return `${diffDays}d ago`;
 }
 
 export const RecordCard: React.FC<RecordCardProps> = ({
   record,
   index,
   totalRecords,
-  onSelectForUpdate,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -43,6 +55,7 @@ export const RecordCard: React.FC<RecordCardProps> = ({
   };
 
   const dateObj = new Date(record.timestamp || record.createdAt);
+  const relativeTime = getRelativeTimeString(dateObj);
   const formattedDate = dateObj.toLocaleString(undefined, {
     dateStyle: 'medium',
     timeStyle: 'medium',
@@ -103,7 +116,7 @@ export const RecordCard: React.FC<RecordCardProps> = ({
       {/* Card Header */}
       <div className="record-header" onClick={() => setIsExpanded(!isExpanded)}>
         <div className="header-left">
-          <div className="timeline-node">
+          <div className="timeline-node" title={`Event #${index + 1} of ${totalRecords}`}>
             <span>#{index + 1}</span>
           </div>
           <div className="record-meta-main">
@@ -127,7 +140,8 @@ export const RecordCard: React.FC<RecordCardProps> = ({
         <div className="header-right">
           <div className="record-time">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
-            <span>{formattedDate}</span>
+            <span className="text-primary font-medium">{relativeTime}</span>
+            <span className="text-muted text-xs">({formattedDate})</span>
           </div>
           <button className="expand-btn" aria-label="Toggle details">
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -154,66 +168,136 @@ export const RecordCard: React.FC<RecordCardProps> = ({
               <FileCode className="w-3.5 h-3.5" />
               <span>Raw JSON Document</span>
             </button>
-            {onSelectForUpdate && (
-              <button
-                type="button"
-                className="subnav-btn"
-                style={{ marginLeft: 'auto', color: '#818cf8', borderColor: 'rgba(99, 102, 241, 0.3)' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectForUpdate(record.messageId);
-                }}
-                title="Open status & parameter updater for this message"
-              >
-                <Sliders className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Update Lifecycle</span>
-              </button>
-            )}
           </div>
-
 
           {activeTab === 'details' ? (
             <div className="details-grid-pane">
-              <div className="details-grid">
-                <div className="detail-item">
-                  <span className="detail-label">
-                    <User className="w-3.5 h-3.5" /> Sender
-                  </span>
-                  <span className="detail-value">{record.sender || 'FreelyEmail'}</span>
+              {/* Delivery Attributes Section */}
+              <div className="details-section">
+                <div className="section-subtitle">
+                  <Mail className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Email & Route Details</span>
                 </div>
-
-                <div className="detail-item">
-                  <span className="detail-label">
-                    <Mail className="w-3.5 h-3.5" /> Recipient
-                  </span>
-                  <span className="detail-value font-mono text-indigo-300">
-                    {record.recipient || '(Not specified)'}
-                  </span>
-                </div>
-
-                {record.replyTo && (
+                <div className="details-grid">
                   <div className="detail-item">
                     <span className="detail-label">
-                      <Send className="w-3.5 h-3.5" /> Reply-To
+                      <User className="w-3.5 h-3.5" /> Sender
                     </span>
-                    <span className="detail-value">{record.replyTo}</span>
+                    <span className="detail-value">{record.sender || 'FreelyEmail'}</span>
                   </div>
-                )}
 
-                <div className="detail-item">
-                  <span className="detail-label">Mongo Document ID</span>
-                  <span className="detail-value font-mono text-xs text-slate-400">{record._id}</span>
+                  <div className="detail-item">
+                    <span className="detail-label">
+                      <Mail className="w-3.5 h-3.5" /> Recipient
+                    </span>
+                    <div className="detail-value-with-copy">
+                      <span className="detail-value font-mono text-sky-400">
+                        {record.recipient || '(Not specified)'}
+                      </span>
+                      {record.recipient && (
+                        <button
+                          type="button"
+                          className="copy-mini-btn"
+                          onClick={() => handleCopy(record.recipient!, `rcpt_${record._id}`)}
+                          title="Copy Recipient Email"
+                        >
+                          {copiedKey === `rcpt_${record._id}` ? (
+                            <Check className="w-3 h-3 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {record.replyTo && (
+                    <div className="detail-item">
+                      <span className="detail-label">
+                        <Send className="w-3.5 h-3.5" /> Reply-To
+                      </span>
+                      <span className="detail-value">{record.replyTo}</span>
+                    </div>
+                  )}
+
+                  <div className="detail-item">
+                    <span className="detail-label">
+                      <Calendar className="w-3.5 h-3.5" /> Timestamp (ISO)
+                    </span>
+                    <span className="detail-value font-mono text-xs text-slate-300">
+                      {dateObj.toISOString()}
+                    </span>
+                  </div>
                 </div>
               </div>
 
+              {/* Technical / Mongo Attributes Section */}
+              <div className="details-section">
+                <div className="section-subtitle">
+                  <Database className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Audit Database Identifiers</span>
+                </div>
+                <div className="details-grid">
+                  <div className="detail-item">
+                    <span className="detail-label">Message ID</span>
+                    <div className="detail-value-with-copy">
+                      <span className="detail-value font-mono text-xs text-indigo-300">
+                        {record.messageId}
+                      </span>
+                      <button
+                        type="button"
+                        className="copy-mini-btn"
+                        onClick={() => handleCopy(record.messageId, `mid_${record._id}`)}
+                        title="Copy Message ID"
+                      >
+                        {copiedKey === `mid_${record._id}` ? (
+                          <Check className="w-3 h-3 text-emerald-400" />
+                        ) : (
+                          <Copy className="w-3 h-3" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="detail-item">
+                    <span className="detail-label">MongoDB Document ID</span>
+                    <div className="detail-value-with-copy">
+                      <span className="detail-value font-mono text-xs text-slate-400">
+                        {record._id}
+                      </span>
+                      {record._id && (
+                        <button
+                          type="button"
+                          className="copy-mini-btn"
+                          onClick={() => handleCopy(record._id!, `id_${record._id}`)}
+                          title="Copy MongoDB ID"
+                        >
+                          {copiedKey === `id_${record._id}` ? (
+                            <Check className="w-3 h-3 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contextual Metadata Section */}
               {record.metadata && Object.keys(record.metadata).length > 0 && (
                 <div className="metadata-box">
-                  <div className="metadata-title">Contextual Metadata</div>
+                  <div className="metadata-title">
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Contextual Metadata Payload</span>
+                  </div>
                   <div className="metadata-tags">
                     {Object.entries(record.metadata).map(([k, v]) => (
                       <div key={k} className="meta-tag-pill">
                         <span className="meta-key">{k}:</span>
-                        <span className="meta-val">{typeof v === 'object' ? JSON.stringify(v) : String(v)}</span>
+                        <span className="meta-val">
+                          {typeof v === 'object' ? JSON.stringify(v) : String(v)}
+                        </span>
                       </div>
                     ))}
                   </div>

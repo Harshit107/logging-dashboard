@@ -7,7 +7,7 @@ import StatsBanner from './components/StatsBanner';
 import RecentFeed from './components/RecentFeed';
 import SchemaViewer from './components/SchemaViewer';
 import ApiSimulator from './components/ApiSimulator';
-import LogUpdater from './components/LogUpdater';
+import TraceLifecycleHeader from './components/TraceLifecycleHeader';
 import { checkBackendHealth, searchByMessageId, fetchRecentLogs } from './services/api';
 import { UserDataLogRecord, ServiceHealth } from './types';
 import {
@@ -22,12 +22,11 @@ import {
   Sparkles,
   ArrowRight,
   RefreshCw,
-  Sliders,
 } from 'lucide-react';
 import { ECOSYSTEM_URLS } from './constants';
 import './App.css';
 
-type ActiveViewTab = 'trace' | 'stream' | 'updater' | 'simulator' | 'schemas';
+type ActiveViewTab = 'trace' | 'stream' | 'simulator' | 'schemas';
 
 export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -42,7 +41,7 @@ export default function App() {
   const [recentLogs, setRecentLogs] = useState<UserDataLogRecord[]>([]);
   const [isLoadingRecent, setIsLoadingRecent] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<ActiveViewTab>('trace');
-  const [updateTargetId, setUpdateTargetId] = useState<string>('');
+
 
   // Sync theme attribute with DOM
   useEffect(() => {
@@ -110,11 +109,6 @@ export default function App() {
     handleSearch(messageId);
   };
 
-  const handleSelectForUpdate = (messageId: string) => {
-    setUpdateTargetId(messageId);
-    setActiveTab('updater');
-  };
-
   return (
     <div className="app-layout">
       <Navbar theme={theme} toggleTheme={toggleTheme} health={health} />
@@ -167,15 +161,6 @@ export default function App() {
           </button>
 
           <button
-            className={`nav-tab-item ${activeTab === 'updater' ? 'active' : ''}`}
-            onClick={() => setActiveTab('updater')}
-          >
-            <Sliders className="w-4 h-4" />
-            <span>Update Lifecycle</span>
-            <span className="tab-pill update">PATCH Status</span>
-          </button>
-
-          <button
             className={`nav-tab-item ${activeTab === 'simulator' ? 'active' : ''}`}
             onClick={() => setActiveTab('simulator')}
           >
@@ -193,6 +178,7 @@ export default function App() {
             <span className="tab-pill">3 models</span>
           </button>
         </div>
+
 
         {/* Tab 1: Trace Investigation View */}
         {activeTab === 'trace' && (
@@ -264,33 +250,13 @@ export default function App() {
 
             {!isLoading && !errorMessage && records !== null && records.length > 0 && (
               <div className="records-view">
-                {/* Results Summary Bar */}
-                <div className="results-summary glass-panel">
-                  <div className="summary-left">
-                    <span className="summary-count">
-                      Found <strong>{records.length}</strong> record{records.length > 1 ? 's' : ''} for
-                    </span>
-                    <code className="active-message-id">{currentQuery}</code>
-                    <button
-                      className="copy-id-btn"
-                      onClick={handleCopyMessageId}
-                      title="Copy Message ID"
-                    >
-                      {copiedId ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                  </div>
-
-                  <div className="summary-right">
-                    <span className="badge badge-type">
-                      <Database className="w-3 h-3" />
-                      <span>user_data_logs</span>
-                    </span>
-                  </div>
-                </div>
+                {/* Visual Lifecycle Pipeline & Trace Overview */}
+                <TraceLifecycleHeader
+                  messageId={currentQuery}
+                  records={records}
+                  onRefresh={() => handleSearch(currentQuery)}
+                  isLoading={isLoading}
+                />
 
                 {/* Chronological List of Records */}
                 <div className="records-list">
@@ -300,7 +266,6 @@ export default function App() {
                       record={record}
                       index={index}
                       totalRecords={records.length}
-                      onSelectForUpdate={handleSelectForUpdate}
                     />
                   ))}
                 </div>
@@ -321,32 +286,20 @@ export default function App() {
           </section>
         )}
 
-        {/* Tab 3: Message Status & Parameter Updater */}
-        {activeTab === 'updater' && (
-          <section className="results-container">
-            <LogUpdater
-              initialMessageId={updateTargetId}
-              onUpdated={(msgId) => {
-                loadRecentData();
-                handleSearch(msgId);
-              }}
-            />
-          </section>
-        )}
-
-        {/* Tab 4: API Simulator View */}
+        {/* Tab 3: API Simulator View */}
         {activeTab === 'simulator' && (
           <section className="results-container">
             <ApiSimulator onLogCreated={handleLogCreated} />
           </section>
         )}
 
-        {/* Tab 5: Database Schemas View */}
+        {/* Tab 4: Database Schemas View */}
         {activeTab === 'schemas' && (
           <section className="results-container">
             <SchemaViewer />
           </section>
         )}
+
       </main>
 
       <footer className="footer container">
