@@ -67,7 +67,7 @@ export default function App() {
 
     const healthInterval = setInterval(() => {
       checkBackendHealth().then((h) => setHealth(h));
-    }, 15000);
+    }, 60 * 1000);
 
     return () => clearInterval(healthInterval);
   }, []);
